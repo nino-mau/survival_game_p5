@@ -1,12 +1,15 @@
-/** Import express */
+/** Imports module */
 const express = require('express');
 
 const app = express();
 
-/** Serve static files to server */
-app.use(express.static('public'));
+const path = require('path');
 
-/** Set responses */
+/** Serve static files to server, use path.join for OS compatibility */
+app.use(express.static(path.join(__dirname, '../public')));
+
+
+/** Set responses/request/logs */
 app.use((req, res, next) => {
     console.log('Requête reçue !');
     next();
@@ -14,11 +17,6 @@ app.use((req, res, next) => {
   
 app.use((req, res, next) => {
     res.status(201);
-    next();
-});
-  
-app.use((req, res, next) => {
-    res.json({ message: 'Votre requête a bien été reçue !' });
     next();
 });
   
