@@ -271,14 +271,20 @@ function setup() {
 };
 
 function draw() {
+    /** Set background color */
     background(169, 169, 169);
+    /** Test if the circle is colliding with the border */
     eventHandlers.testBorderCollision();
+    /** Increase nb of obstacle every 5 seconds */
     eventHandlers.obstacleTimer();
+    /** Display the circle, border, timer and score upon death */
     display.cercle();
     display.canvasBorder();
     display.timer();
     display.score();
+    /** Update circle position */
     positionUpdate.cercle();
+    /** Stop the loop upon death */
     eventHandlers.stopLoop();
     /** Loop to execute certains functions to a certain number of obstacle objects in an array */
     for (let i = 0; i <= obstacle.currentNumber; i++) {
