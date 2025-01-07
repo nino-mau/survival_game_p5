@@ -1,12 +1,12 @@
-const express = require('express');
+// const express = require('express');
 
-const app = express();
-
-
-app.use((req, res) => {
-   res.json({ message: 'Votre requête a bien été reçue !' }); 
-});
+// const app = express();
 
 
-module.exports = app;
+// app.use((req, res) => {
+//    res.json({ message: 'Votre requête a bien été reçue !' }); 
+// });
+
+
+// module.exports = app;
 
