@@ -1,6 +1,8 @@
 /** Imports module */
 const express = require('express');
 
+const session = require('express-session');
+
 const app = express();
 
 const path = require('path');
@@ -8,6 +10,18 @@ const path = require('path');
 /** Serve static files to server, use path.join for OS compatibility */
 app.use(express.static(path.join(__dirname, '../public')));
 
+const sessionMiddleware = session({
+    secret: "azerty", 
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 1000 * 60 * 60, 
+        secure: false,          
+        httpOnly: true,         
+    }
+});
+
+app.use(sessionMiddleware);
 
 /** Set responses/request/logs */
 // app.use((req, res, next) => {
@@ -23,7 +37,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 // app.use((req, res, next) => {
 //     console.log('Réponse envoyée avec succès !');
 // });
-  
+   
 /** Export app object to be used in server.js */
-module.exports = app;
+module.exports = {app, sessionMiddleware};
 

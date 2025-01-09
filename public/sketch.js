@@ -2,6 +2,7 @@
 /** Connects to the server */
 const socket = io();
 
+
 /** --- GLOBAL VARIABLE --- */
 
 let color_black;
@@ -13,7 +14,7 @@ let color_red; // Variable to store colors objects
 let c_fillColor; // Variable to store the colors of the circle.
 
 
-/** --- OBJECTS AND CLASSES --- */
+/** --- CLASSES --- */
 
 /** Class exclusively used to create the obstacle array */
 class obs {
@@ -32,6 +33,28 @@ class obs {
     }
 };
 
+class Circle {
+    constructor(posX, posY, size, step) {
+        this.posX = posX;
+        this.posY = posY;
+        this.size = size;
+        this.step = step;
+    }
+    display(posX, posY, size) {
+        push();
+        fill(c_fillColor);
+        stroke(c_strokeColor);
+        circle(posX, posY, size);
+        pop();
+    }
+};
+
+// Init objects
+let playerCircle = new Circle(50,50,50,2)
+
+
+/** --- OBJECTS --- */
+
 /** Object to store functions and variable related to the obstacle */
 const obstacle = {
     array: [],
@@ -42,7 +65,7 @@ const obstacle = {
     number: 50, // Variable used to define how many obstacle will spawn during the game.
     directionHV: 0, // Variable that define the obstacle's direction, vertical or horizontal. 
     currentNumber: 0, // Variable used to store the number of obstacle currently set to display.
-    stepSize: 1, // Variable that define by how muçh pixels the circle will move when a key is pressed.
+    step: 1, // Variable that define by how muçh pixels the circle will move when a key is pressed.
     /** To fill the obstacle array */
     pushInArray: function () {
         for (let i = 0; i < this.number; i++) {
@@ -59,25 +82,10 @@ const obstacle = {
     }
 };
 
-/** Object to store functions and variable related to the circle */
-const cercle = {
-    stepSize: 2, // Variable that define by how muçh pixels the circle will move when a key is pressed.
-    posX: 50,
-    posY: 50,
-    size: 50,
-    display: function (posX, posY, size) {
-        push();
-        fill(c_fillColor);
-        stroke(c_strokeColor);
-        circle(posX, posY, size);
-        pop();
-    }
-};
-
 /** Object to store functions related to the displaying of elements */
 const display = {
-    cercle: function () {
-        cercle.display(cercle.posX, cercle.posY, cercle.size);
+    playerCircle: function () {
+        playerCircle.display(playerCircle.posX, playerCircle.posY, playerCircle.size);
     },
     obstacle: function (indexObs) {
         let posX = obstacle.array[indexObs]["posX"];
@@ -125,18 +133,18 @@ const display = {
 
 /** Object to store functions related to updating positions of elements on the canvas */
 const positionUpdate = {
-    cercle: function () {
+    playerCircle: function () {
         if (keyIsDown(UP_ARROW)) {
-            cercle.posY -= cercle.stepSize;
+            playerCircle.posY -= playerCircle.step;
         }
         if (keyIsDown(DOWN_ARROW)) {
-            cercle.posY += cercle.stepSize;
+            playerCircle.posY += playerCircle.step;
         }
         if (keyIsDown(LEFT_ARROW)) {
-            cercle.posX -= cercle.stepSize;
+            playerCircle.posX -= playerCircle.step;
         }
         if (keyIsDown(RIGHT_ARROW)) {
-            cercle.posX += cercle.stepSize;
+            playerCircle.posX += playerCircle.step;
         }
     },
     obstacle: function (indexObs) {
@@ -155,13 +163,13 @@ const positionUpdate = {
         let obsBorderXX = (posX + obstacle.width / 2);
 
         if (obsBorderX > 5 && obsBorderXX < 635) { // If both extermities of the ellipse are inside the canvas the direction doesn't change.
-            posX += obstacle.stepSize * dir;
+            posX += obstacle.step * dir;
             obstacle.array[indexObs]["posX"] = posX;
         }
         else {
             dir *= -1; // Change the direction by mutiplying direction by -1, if direction is 1 then it becomes -1 and vis versa.
             obstacle.array[indexObs]["dir"] = dir;
-            posX += obstacle.stepSize * dir;
+            posX += obstacle.step * dir;
             obstacle.array[indexObs]["posX"] = posX;
         }
     },
@@ -172,13 +180,13 @@ const positionUpdate = {
         let obsBorderYY = (posY + obstacle.width / 2);
 
         if (obsBorderY > 5 && obsBorderYY < 475) {
-            posY += obstacle.stepSize * dir;
+            posY += obstacle.step * dir;
             obstacle.array[indexObs]["posY"] = posY;
         }
         else {
             dir *= -1;
             obstacle.array[indexObs]["dir"] = dir;
-            posY += obstacle.stepSize * dir;
+            posY += obstacle.step * dir;
             obstacle.array[indexObs]["posY"] = posY;
         }
     },
@@ -202,10 +210,10 @@ const eventHandlers = {
         };
     },
     testObstacleCollision: function (indexObs) {
-        let collisionDist = (cercle.size / 2) + (obstacle.width / 2);
+        let collisionDist = (playerCircle.size / 2) + (obstacle.width / 2);
         let posX = obstacle.array[indexObs]["posX"];
         let posY = obstacle.array[indexObs]["posY"];
-        if (dist(cercle.posX, cercle.posY, posX, posY) < collisionDist) {
+        if (dist(playerCircle.posX, playerCircle.posY, posX, posY) < collisionDist) {
             c_fillColor = color_red; // Change the circle's color.
             this.isObjectCollisionTrue = true;
             this.isGameOver = true;
@@ -216,10 +224,10 @@ const eventHandlers = {
         }
     },
     testBorderCollision: function () {
-        let cborderX = (cercle.posX - cercle.size / 2); // Create variable with the coord that correspond to the circle's border and not the center.
-        let cborderY = (cercle.posY - cercle.size / 2);
-        let cborderXX = (cercle.posX + cercle.size / 2); // Same thing but for the other side of the circle.
-        let cborderYY = (cercle.posY + cercle.size / 2);
+        let cborderX = (playerCircle.posX - playerCircle.size / 2); // Create variable with the coord that correspond to the circle's border and not the center.
+        let cborderY = (playerCircle.posY - playerCircle.size / 2);
+        let cborderXX = (playerCircle.posX + playerCircle.size / 2); // Same thing but for the other side of the circle.
+        let cborderYY = (playerCircle.posY + playerCircle.size / 2);
 
         if (cborderX <= 2) {
             this.isBorderCollisionTrue = true;
@@ -273,6 +281,7 @@ const socketMethods = {
     }
 };
 
+
 /** --- P5 EXECUTABLE --- */
 
 function setup() {
@@ -280,8 +289,8 @@ function setup() {
     background(169, 169, 169);
     textSize(40);
     textAlign(CENTER, CENTER);
-    cercle.posX = random(50, 600);
-    cercle.posY = random(50, 400);
+    playerCircle.posX = random(50, 600);
+    playerCircle.posY = random(50, 400);
     obstacle.directionHV = obstacle._randomMinusOneZero(); // Set directionHV to either -1 or 0 so the obstacle can either travel vertically or horizontally.
     color_red = color(255, 0, 0); // Variable that store colors.
     color_white = color(240, 240, 240);
@@ -307,14 +316,14 @@ function draw() {
     /** Increase nb of obstacle every 5 seconds */
     eventHandlers.obstacleTimer();
     /** Display the circle, border, timer and score upon death */
-    display.cercle();
+    display.playerCircle();
     display.canvasBorder();
     display.timer();
     display.score();
     /** Update circle position */
-    positionUpdate.cercle();
+    positionUpdate.playerCircle();
     /** Send circle position to the server */
-    // socketMethods.emitToServer('playerPosition', cercle.posX, cercle.posY);
+    // socketMethods.emitToServer('playerPosition', playerCircle.posX, playerCircle.posY);
     /** Receive positions of other players */
     // socketMethods.receiveFromServer('playersPosition');
     /** Stop the loop upon death */
@@ -332,6 +341,9 @@ function draw() {
     };
 };
 
-socketMethods.emitToServer('playerPosition', cercle.posX, cercle.posY);
+socketMethods.emitToServer('playerPosition', playerCircle.posX, playerCircle.posY);
 
 socketMethods.receiveFromServer('playerPosition');
+
+// let playerId = socket.id;
+// console.log(playerId);

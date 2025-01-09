@@ -1,7 +1,8 @@
 /** Equivalent to import */
 const http = require('http');
-const app = require('./app');
+const {app, sessionMiddleware } = require('./app');
 const { Server } = require("socket.io");
+const sharedSession = require("express-socket.io-session");
 
 /** Convert string/int port to valid port */
 const normalizePort = val => {
@@ -55,18 +56,21 @@ server.on('listening', () => {
 
 /** --- Handle socket.io related executable --- */
 
-/** Log new connections */
 const io = new Server(server);
 
-io.on('connection', (socket) => {
-    console.log(`Socket ID ${socket.id} connected`);
-    socket.on('disconnect', () => {
-        console.log(`Socket ID ${socket.id} disconnected`);
-    });
-});
+/** Share session with socket.io */
+io.use(sharedSession(sessionMiddleware, {
+    autoSave: true 
+})); 
 
-/** Receive and send back player position */
 io.on('connection', (socket) => {
+    /** Handle connection and sessions */
+    const session = socket.handshake.session;
+    console.log(`Socket connected. Session ID: ${session.id}`);
+    socket.on('disconnect', () => {
+        console.log(`Session ${session.id} disconnected`);
+    });
+    /** Receive and send back player position */
     socket.on('playerPosition', (arg1, arg2, callback) => {
         let playerPosition = {playerId: socket.id, posX: arg1, posY: arg2};
         socket.playerPosition = playerPosition;
@@ -82,7 +86,6 @@ io.on('connection', (socket) => {
         });    
     });  
 });
-
 
 /** --- Start the server --- */
 server.listen(port);

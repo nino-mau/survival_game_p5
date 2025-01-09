@@ -2,9 +2,16 @@
 
 Node modules to install (* is required) :
 
--Express (to install: npm install express) *
+-Express (npm install express) *
 
--Nodemon (to install: npm install -g nodemon )
+-Express-session (npm install express express-session) *
+
+-Express-socket.io-session (npm install express-socket.io-session) *
+
+-Socket.io (npm install socket.io) *
+
+-Nodemon (npm install -g nodemon )
+
 
 
 
