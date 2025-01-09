@@ -264,6 +264,12 @@ const socketMethods = {
             console.error("Server did not respond in time !");
             alert("Server did not respond in time !");
         }
+    },
+    receiveFromServer: function(event) {
+        socket.on(event, (arg1, callback) => {
+            console.log(arg1);
+            callback({status: 'Position received by client !'});
+        });
     }
 };
 
@@ -308,7 +314,9 @@ function draw() {
     /** Update circle position */
     positionUpdate.cercle();
     /** Send circle position to the server */
-    socketMethods.emitToServer('playerPosition', cercle.posX, cercle.posY);
+    // socketMethods.emitToServer('playerPosition', cercle.posX, cercle.posY);
+    /** Receive positions of other players */
+    // socketMethods.receiveFromServer('playersPosition');
     /** Stop the loop upon death */
     eventHandlers.stopLoop();
     /** Loop to execute certains functions to a certain number of obstacle objects in an array */
@@ -323,3 +331,7 @@ function draw() {
         positionUpdate.obstacle(obstacleIndex);
     };
 };
+
+socketMethods.emitToServer('playerPosition', cercle.posX, cercle.posY);
+
+socketMethods.receiveFromServer('playerPosition');

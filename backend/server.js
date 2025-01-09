@@ -54,7 +54,7 @@ server.on('listening', () => {
 });
 
 
-/** --- Handle socket.io related functions --- */
+/** --- Handle socket.io related executable --- */
 
 /** Log new connections */
 const io = new Server(server);
@@ -66,16 +66,39 @@ io.on('connection', (socket) => {
     });
 });
 
-/** Receive player position */
+/** Receive and send back player position */
 io.on('connection', (socket) => {
     socket.on('playerPosition', (arg1, arg2, callback) => {
         let playerPosition = {playerId: socket.id, posX: arg1, posY: arg2};
+        socket.playerPosition = playerPosition;
         console.log(playerPosition);
-        callback({
-            status: 'Position received'
-        });
-    });
+        callback({status: 'Position received and sent back succesfuly !'});
+        // Emit the position to all clients.
+        socket.timeout(5000).emit('playerPosition', playerPosition, (err, response) => {
+            if (err) {
+                console.error('Client did not acknowledge the request in time !')
+            } else {
+            console.log(response.status); 
+            }
+        });    
+    });  
 });
+
+
+/** Send back that position to other clients */
+// io.on('connection', async (socket) => {
+//     try {
+//         const response = await socket.timeout(5000).emitWithAck('playersPosition', playerPosition);
+//         console.log(response.status); 
+//     } catch (e) {
+//         console.error('Could not connect to the clients in time !');
+//     }
+// });
+
+
+
+
+
 
 
 /** --- Start the server --- */
