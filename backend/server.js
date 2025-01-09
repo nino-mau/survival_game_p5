@@ -40,7 +40,21 @@ const errorHandler = error => {
     }
 };
   
-/** Start the server */
+/** --- Handle socket.io related functions --- */
+
+/** Track users and log them */
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
+
+
+/** --- Configure and start the server --- */
+
 const server = http.createServer(app);
 
 server.on('error', errorHandler);
