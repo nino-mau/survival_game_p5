@@ -186,7 +186,7 @@ const positionUpdate = {
 
 /** Object to store functions handling important games event (like collision) */
 const eventHandlers = {
-    booleanLoopIndicator: false,
+    isGameOver: false,
     lastTime: 0, // Variable used in obstacleTimer().
     isBorderCollisionTrue: false, // Same thing but for testOutOfScreen.
     obstacleInterval: 5, // Variable that define the amount of seconds before a new obstacle spawn.
@@ -208,11 +208,11 @@ const eventHandlers = {
         if (dist(cercle.posX, cercle.posY, posX, posY) < collisionDist) {
             c_fillColor = color_red; // Change the circle's color.
             this.isObjectCollisionTrue = true;
-            this.booleanLoopIndicator = true;
+            this.isGameOver = true;
         }
         else {
             this.isObjectCollisionTrue = false;
-            this.booleanLoopIndicator = false;
+            this.isGameOver = false;
         }
     },
     testBorderCollision: function () {
@@ -225,29 +225,29 @@ const eventHandlers = {
             this.isBorderCollisionTrue = true;
             b_fillColor = color_red;
             c_strokeColor = color_red; // Change the color of the circle's border to red.
-            this.booleanLoopIndicator = true; // Variable that will be used by the stopLoop function.
+            this.isGameOver = true; // Variable that will be used by the stopLoop function.
         }
         if (cborderY <= 2) {
             this.isBorderCollisionTrue = true;
             b_fillColor = color_red;
             c_strokeColor = color_red;
-            this.booleanLoopIndicator = true;
+            this.isGameOver = true;
         }
         if (cborderXX >= 636) {
             this.isBorderCollisionTrue = true;
             b_fillColor = color_red;
             c_strokeColor = color_red;
-            this.booleanLoopIndicator = true;
+            this.isGameOver = true;
         }
         if (cborderYY >= 476) {
             this.isBorderCollisionTrue = true;
             b_fillColor = color_red;
             c_strokeColor = color_red;
-            this.booleanLoopIndicator = true;
+            this.isGameOver = true;
         }
     },
     stopLoop: function () {
-        if (eventHandlers.booleanLoopIndicator === true) { // don't need to use '=== true' cause the if condition by default will be fullfiled if the value of the variable is boolean true.
+        if (this.isGameOver) { // don't need to use '=== true' cause the if condition by default will be fullfiled if the value of the variable is boolean true.
             noLoop();
         }
     }
@@ -266,7 +266,6 @@ const socketMethods = {
         }
     }
 };
-
 
 /** --- P5 EXECUTABLE --- */
 
@@ -292,6 +291,11 @@ function setup() {
 function draw() {
     /** Set background color */
     background(169, 169, 169);
+    /** To prevent the obstacle from being erased when the game end */
+    for (let i = 0; i <= obstacle.currentNumber; i++) {
+        obstacleIndex = i;
+        display.obstacle(obstacleIndex);
+    };
     /** Test if the circle is colliding with the border */
     eventHandlers.testBorderCollision();
     /** Increase nb of obstacle every 5 seconds */

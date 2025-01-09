@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
 /** Receive player position */
 io.on('connection', (socket) => {
     socket.on('playerPosition', (arg1, arg2, callback) => {
-        let playerPosition = {posX: arg1, posY: arg2};
+        let playerPosition = {playerId: socket.id, posX: arg1, posY: arg2};
         console.log(playerPosition);
         callback({
             status: 'Position received'
