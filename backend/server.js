@@ -43,7 +43,6 @@ const errorHandler = error => {
   
 
 /** --- Configure the server --- */
-
 const server = http.createServer(app);
 
 server.on('error', errorHandler);
@@ -74,7 +73,7 @@ io.on('connection', (socket) => {
         console.log(playerPosition);
         callback({status: 'Position received and sent back succesfuly !'});
         // Emit the position to all clients.
-        socket.timeout(5000).emit('playerPosition', playerPosition, (err, response) => {
+        socket.timeout(5000).broadcast.emit('playerPosition', playerPosition, (err, response) => {
             if (err) {
                 console.error('Client did not acknowledge the request in time !')
             } else {
@@ -83,22 +82,6 @@ io.on('connection', (socket) => {
         });    
     });  
 });
-
-
-/** Send back that position to other clients */
-// io.on('connection', async (socket) => {
-//     try {
-//         const response = await socket.timeout(5000).emitWithAck('playersPosition', playerPosition);
-//         console.log(response.status); 
-//     } catch (e) {
-//         console.error('Could not connect to the clients in time !');
-//     }
-// });
-
-
-
-
-
 
 
 /** --- Start the server --- */
