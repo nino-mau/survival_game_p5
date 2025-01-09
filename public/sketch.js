@@ -1,3 +1,7 @@
+
+/** Connects to the server */
+const socket = io();
+
 /** --- GLOBAL VARIABLE --- */
 
 let color_black;
@@ -249,7 +253,22 @@ const eventHandlers = {
     }
 };
 
-/** --- EXECUTABLE --- */
+/** --- Methods to be used frontend with socket.io --- */
+const socketMethods = {
+    /** Emit with promise and error handling */
+    emitToServer: async function(event, arg1, arg2) {
+        try {
+            const response = await socket.timeout(5000).emitWithAck(event, arg1, arg2);
+            console.log(response.status); 
+        } catch (e) {
+            console.error("Server did not respond in time !");
+            alert("Server did not respond in time !");
+        }
+    }
+};
+
+
+/** --- P5 EXECUTABLE --- */
 
 function setup() {
     createCanvas(640, 480);
@@ -284,6 +303,8 @@ function draw() {
     display.score();
     /** Update circle position */
     positionUpdate.cercle();
+    /** Send circle position to the server */
+    socketMethods.emitToServer('playerPosition', cercle.posX, cercle.posY);
     /** Stop the loop upon death */
     eventHandlers.stopLoop();
     /** Loop to execute certains functions to a certain number of obstacle objects in an array */

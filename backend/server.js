@@ -1,6 +1,7 @@
 /** Equivalent to import */
 const http = require('http');
 const app = require('./app');
+const { Server } = require("socket.io");
 
 /** Convert string/int port to valid port */
 const normalizePort = val => {
@@ -40,20 +41,8 @@ const errorHandler = error => {
     }
 };
   
-/** --- Handle socket.io related functions --- */
 
-/** Track users and log them */
-const io = new Server(server);
-
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
-
-
-/** --- Configure and start the server --- */
+/** --- Configure the server --- */
 
 const server = http.createServer(app);
 
@@ -64,4 +53,30 @@ server.on('listening', () => {
     console.log('Listening on ' + bind);
 });
 
+
+/** --- Handle socket.io related functions --- */
+
+/** Log new connections */
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+    console.log(`Socket ID ${socket.id} connected`);
+    socket.on('disconnect', () => {
+        console.log(`Socket ID ${socket.id} disconnected`);
+    });
+});
+
+/** Receive player position */
+io.on('connection', (socket) => {
+    socket.on('playerPosition', (arg1, arg2, callback) => {
+        let playerPosition = {posX: arg1, posY: arg2};
+        console.log(playerPosition);
+        callback({
+            status: 'Position received'
+        });
+    });
+});
+
+
+/** --- Start the server --- */
 server.listen(port);
