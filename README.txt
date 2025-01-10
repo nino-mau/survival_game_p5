@@ -1,6 +1,6 @@
-REQUIRE NODE.JS AND NPM
+To use you first need to have last version of node.js and npm.
 
-Node modules to install (* is required) :
+Then install the following modules in the backend folder:
 
 -Express (npm install express) *
 
@@ -12,5 +12,8 @@ Node modules to install (* is required) :
 
 -Nodemon (npm install -g nodemon )
 
+You can now launch the server by running the following command in the backend folder: nodemon server 
 
-Port 4000 is used cause port 3000 is already used by vscode live preview extension.
+The server is now running at http://localhost:4000/
+
+You can test the multiplayer feature by opening a second window, you can see the positions of other client's circle but you cannot interact.
