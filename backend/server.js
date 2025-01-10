@@ -55,7 +55,6 @@ server.on('listening', () => {
 
 
 /** --- Handle socket.io related executable --- */
-
 const io = new Server(server);
 
 /** Share session with socket.io */
@@ -86,6 +85,7 @@ io.on('connection', (socket) => {
         });    
     });  
 });
+
 
 /** --- Start the server --- */
 server.listen(port);

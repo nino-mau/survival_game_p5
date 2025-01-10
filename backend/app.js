@@ -37,7 +37,8 @@ app.use(sessionMiddleware);
 // app.use((req, res, next) => {
 //     console.log('Réponse envoyée avec succès !');
 // });
-   
+ 
+
 /** Export app object to be used in server.js */
 module.exports = {app, sessionMiddleware};
 

@@ -10,8 +10,11 @@ let b_fillColor;
 let color_white;
 let c_strokeColor;
 let color_DarkGrey;
-let color_red; // Variable to store colors objects
-let c_fillColor; // Variable to store the colors of the circle.
+let color_red; 
+let color_blue;
+let cr_fillColor;
+let c_fillColor; 
+let REMOTE_PLAYER_POSITION = {};
 
 
 /** --- CLASSES --- */
@@ -47,10 +50,21 @@ class Circle {
         circle(posX, posY, size);
         pop();
     }
+    displayRemote() {
+        push();
+        fill(cr_fillColor);
+        stroke(c_strokeColor);
+        circle(this.posX, this.posY, this.size);
+        pop();
+    }
+    updatePosition(posX, posY) {
+        this.posX = posX;
+        this.posY = posY;
+    }
 };
-
 // Init objects
-let playerCircle = new Circle(50,50,50,2)
+let playerCircle = new Circle(50,50,50,2);
+let remotePlayerCircle = new Circle(0,0,50,2);
 
 
 /** --- OBJECTS --- */
@@ -86,6 +100,18 @@ const obstacle = {
 const display = {
     playerCircle: function () {
         playerCircle.display(playerCircle.posX, playerCircle.posY, playerCircle.size);
+    },
+    remotePlayerCircle: function() {
+        let playerPositionf = {};
+        socketMethods.receiveFromServer('playerPosition', (playerPosition) => {
+            if (playerPosition) {
+                REMOTE_PLAYER_POSITION = playerPosition;
+            } else {
+                console.error('Received invalid player position!');
+            }
+        });
+        remotePlayerCircle.updatePosition(REMOTE_PLAYER_POSITION.posX, REMOTE_PLAYER_POSITION.posY);
+        remotePlayerCircle.displayRemote();
     },
     obstacle: function (indexObs) {
         let posX = obstacle.array[indexObs]["posX"];
@@ -273,10 +299,10 @@ const socketMethods = {
             alert("Server did not respond in time !");
         }
     },
-    receiveFromServer: function(event) {
-        socket.on(event, (arg1, callback) => {
-            console.log(arg1);
-            callback({status: 'Position received by client !'});
+    receiveFromServer: function(event, callback) {
+        socket.on(event, (arg1, callbackResponse) => {
+            callback(arg1)
+            callbackResponse({status: 'Position received by client !'});
         });
     }
 };
@@ -296,6 +322,8 @@ function setup() {
     color_white = color(240, 240, 240);
     color_black = color(60, 60, 60);
     color_DarkGrey = color(47, 79, 79);
+    color_blue = color(0, 0, 255)
+    cr_fillColor = color_blue;
     c_fillColor = color_white;
     c_strokeColor = color_black;
     b_fillColor = color_DarkGrey;
@@ -315,17 +343,16 @@ function draw() {
     eventHandlers.testBorderCollision();
     /** Increase nb of obstacle every 5 seconds */
     eventHandlers.obstacleTimer();
-    /** Display the circle, border, timer and score upon death */
+    /** Display the circle, remoteCircle, border, timer and score upon death */
     display.playerCircle();
+    display.remotePlayerCircle();
     display.canvasBorder();
     display.timer();
     display.score();
     /** Update circle position */
     positionUpdate.playerCircle();
     /** Send circle position to the server */
-    // socketMethods.emitToServer('playerPosition', playerCircle.posX, playerCircle.posY);
-    /** Receive positions of other players */
-    // socketMethods.receiveFromServer('playersPosition');
+    socketMethods.emitToServer('playerPosition', playerCircle.posX, playerCircle.posY);
     /** Stop the loop upon death */
     eventHandlers.stopLoop();
     /** Loop to execute certains functions to a certain number of obstacle objects in an array */
@@ -341,9 +368,5 @@ function draw() {
     };
 };
 
-socketMethods.emitToServer('playerPosition', playerCircle.posX, playerCircle.posY);
 
-socketMethods.receiveFromServer('playerPosition');
 
-// let playerId = socket.id;
-// console.log(playerId);
