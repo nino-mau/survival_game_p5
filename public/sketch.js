@@ -2,6 +2,8 @@
 /** Connects to the server */
 const socket = io();
 
+/** Set music volume */
+document.getElementById("music").volume = 0.2;
 
 /** --- GLOBAL VARIABLE --- */
 
@@ -14,6 +16,7 @@ let color_red;
 let color_blue;
 let cr_fillColor;
 let c_fillColor; 
+// Used to store position of other players.
 let REMOTE_PLAYER_POSITION = {};
 
 
@@ -62,9 +65,10 @@ class Circle {
         this.posY = posY;
     }
 };
+
 // Init objects
-let playerCircle = new Circle(50,50,50,2);
-let remotePlayerCircle = new Circle(0,0,50,2);
+let playerCircle = new Circle(50,50,50,3);
+let remotePlayerCircle = new Circle(0,0,50,3);
 
 
 /** --- OBJECTS --- */
@@ -79,7 +83,7 @@ const obstacle = {
     number: 50, // Variable used to define how many obstacle will spawn during the game.
     directionHV: 0, // Variable that define the obstacle's direction, vertical or horizontal. 
     currentNumber: 0, // Variable used to store the number of obstacle currently set to display.
-    step: 1, // Variable that define by how muçh pixels the circle will move when a key is pressed.
+    step: 3, // Variable that define by how muçh pixels the circle will move when a key is pressed.
     /** To fill the obstacle array */
     pushInArray: function () {
         for (let i = 0; i < this.number; i++) {
@@ -311,13 +315,19 @@ const socketMethods = {
 /** --- P5 EXECUTABLE --- */
 
 function setup() {
+
+    /** Init P5 environement */
     createCanvas(640, 480);
     background(169, 169, 169);
     textSize(40);
     textAlign(CENTER, CENTER);
+
+    /** Init circle and obstacle initial position */
     playerCircle.posX = random(50, 600);
     playerCircle.posY = random(50, 400);
     obstacle.directionHV = obstacle._randomMinusOneZero(); // Set directionHV to either -1 or 0 so the obstacle can either travel vertically or horizontally.
+
+    /** Init color variable */
     color_red = color(255, 0, 0); // Variable that store colors.
     color_white = color(240, 240, 240);
     color_black = color(60, 60, 60);
@@ -327,34 +337,44 @@ function setup() {
     c_fillColor = color_white;
     c_strokeColor = color_black;
     b_fillColor = color_DarkGrey;
+
     /** Create the obstacle objects and push them in obstacle array */
     obstacle.pushInArray();
 };
 
 function draw() {
+
     /** Set background color */
     background(169, 169, 169);
+
     /** To prevent the obstacle from being erased when the game end */
     for (let i = 0; i <= obstacle.currentNumber; i++) {
         obstacleIndex = i;
         display.obstacle(obstacleIndex);
     };
+
     /** Test if the circle is colliding with the border */
     eventHandlers.testBorderCollision();
+
     /** Increase nb of obstacle every 5 seconds */
     eventHandlers.obstacleTimer();
+
     /** Display the circle, remoteCircle, border, timer and score upon death */
     display.playerCircle();
     display.remotePlayerCircle();
     display.canvasBorder();
     display.timer();
     display.score();
+
     /** Update circle position */
     positionUpdate.playerCircle();
+
     /** Send circle position to the server */
     socketMethods.emitToServer('playerPosition', playerCircle.posX, playerCircle.posY);
+
     /** Stop the loop upon death */
     eventHandlers.stopLoop();
+
     /** Loop to execute certains functions to a certain number of obstacle objects in an array */
     for (let i = 0; i <= obstacle.currentNumber; i++) {
         obstacleIndex = i;
